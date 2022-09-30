@@ -41,7 +41,7 @@ Tambien se agregó el archivo **dataWarehouse.postman_collection.json** en el di
 
 Para iniciar las prubas de la API, se recomienda iniciar usando:
 - El usuario ***ADMIN***.<br>
-  _***email:*** admin@admin.com <br>
+  ***email:*** admin@admin.com <br>
   ***password:*** 123
 
 ### Endpoints
