@@ -1,0 +1,1659 @@
+openapi: 3.0.3
+info:
+  title:  Data Warehouse
+  description: |-
+    Este proyecto plantea la creación de un sistema de manejo y administracion de todos los contactos que tiene una empresa con sus clientes.
+    <br>
+    Poner en funcionamiento las partes necesarias para montar una REST API que permite realizar altas, bajas, modificaciones y obtención de información sobre una estructura de datos que podría consumir un cliente.
+    
+    Algunos links útiles:
+    - [Data Warehouse](https://github.com/swagger-api/swagger-petstore)
+    - [The source API definition for the Data Warehouse](https://github.com/swagger-api/swagger-petstore/blob/master/src/main/resources/openapi.yaml)
+    
+  contact:
+    email: 1992savg@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+
+servers:
+  - url: to be defined
+
+tags:
+  - name: auth
+    description: Operaciones para el ingreso/egreso y autorizacion de la aplicación.
+  - name: users
+    description: Operaciones sobre los usuarios. __*Necesita Bearer authentication (token otorgado en el login).*__
+  - name: regions
+    description: Operaciones sobre las regiones. __*Necesita Bearer authentication (token otorgado en el login).*__
+  - name: countries
+    description: Operaciones sobre los paises. __*Necesita Bearer authentication (token otorgado en el login).*__
+  - name: cities
+    description: Operaciones sobre los ciudades. __*Necesita Bearer authentication (token otorgado en el login).*__
+  - name: companies
+    description: Operaciones sobre los empresas. __*Necesita Bearer authentication (token otorgado en el login).*__
+  - name: contacts
+    description: Operaciones sobre los contactos. __*Necesita Bearer authentication (token otorgado en el login).*__
+  - name: channels
+    description: Operaciones sobre los canales. __*Necesita Bearer authentication (token otorgado en el login).*__
+  - name: contactChannels
+    description: Operaciones sobre los canales de contacto. __*Necesita Bearer authentication (token otorgado en el login).*__
+
+paths:
+  /login:
+    post:
+      tags:
+        - auth
+      summary: Ingreso del usuario al sistema
+      description: ''
+      operationId: loginUser
+      parameters:
+        - name: email
+          in: query
+          description: El email para el ingreso
+          required: true
+          schema:
+            type: string
+        - name: contraseña
+          in: query
+          description: La contraseña para el ingreso
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: operación exitosa
+          headers:
+            X-Rate-Limit:
+              description: calls per hour allowed by the user
+              schema:
+                type: integer
+                format: int32
+            X-Expires-After:
+              description: date in UTC when token expires
+              schema:
+                type: string
+                format: date-time
+          content:
+            application/xml:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Email o contraseña ingresada incorrecta
+  /logout:
+    delete:
+      tags:
+        - auth
+      summary: Finaliza sesion del ususario
+      description: ''
+      operationId: logoutUser
+      parameters: []
+      responses:
+        default:
+          description: operación exitosa
+  /users/register:
+    post:
+      security:
+      - bearerAuth: []
+      tags:
+        - users
+      summary: Crear usuario. Se debe ser "Admin"
+      description: Trae datos del token. <br> Si el usuario es __"Admin"__, podra crear un nuevo usuario.<br>Si el usuario es "User", obtendra mensaje de no autorizado.
+      operationId: createUser
+      parameters:
+        - in: header
+          name: role
+          type: string
+          required: true
+          description: "Admin or User"
+        - in: body
+          name: body
+          description: 'Datos necesarios para crear usuario'
+          required: true
+          schema:
+            $ref: '#/components/schemas/Users'
+      requestBody:
+        description: Created user object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Users'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Users'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Users'
+      responses:
+        '201':
+          description: Usuario creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Users'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Users'
+        '400':
+          description: Error al crear usuario
+        '401':
+          description: No autorizado para crear usuario
+        '409':
+          description: Email ya existe o en uso
+  /users:
+    get:
+      security:
+      - bearerAuth: []
+      tags:
+        - users
+      summary: Obtiene una lista de todos los usuarios
+      description: 'Trae datos del token. <br> Si el usuario es "Admin", obtendra una lista de todos los usuarios.<br>Si el usuario es "User", obtendra los datos de su propio usuario.'
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: role
+          type: string
+          required: true
+          description: "Admin or User"
+        - name: idUser
+          in: header
+          description: 'Sera usado el "idUser" para traer datos de usuario; en cado caso del usuario ser "User" traera sus propios datos.'
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Listado de usuarios
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Users'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Users'
+        '206':
+          description: Datos de usuario
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Users'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Users'
+        '400':
+          description: Error al listar usuarios
+        '401':
+          description: No Autorizado para ver la lista de usuarios
+  /users/{idUser}:
+    get:
+      security:
+      - bearerAuth: []
+      tags:
+        - users
+      summary: Trae datos de usuario por "idUser". Se debe ser "Admin"
+      description: 'Trae datos del token. <br> Si el usuario es __"Admin"__, obtendra  los datos del usuario consultado.<br>Si el usuario es "User", obtendra mensaje de no autorizado a menos que el "idUser" sea su propio.'
+      operationId: getUserById
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: role
+          type: string
+          required: true
+          description: "Admin or User"
+        - name: idUser
+          in: path
+          description: 'Sera usado el "idUser" para traer los datos del usuario a consultar.'
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Datos del usuario
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Users'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Users'
+        '206':
+          description: Informacion de usuario
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Users'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Users'
+        '400':
+          description: Error al listar usuario
+        '401':
+          description: No Autorizado para ver los detalles del usuario
+          schema:
+            $ref: '#/definitions/Error'
+    put:
+      security:
+      - bearerAuth: []
+      tags:
+        - users
+      summary: Modificacion de datos de userio
+      description: Trae datos del token. Si el usuario es __"Admin"__, podra hacer cambios en caulquier "idUser".<br>Si el usuario es "User", solo podra hacer cambios en su propias datos (nombre, apellido, contraseña).
+      operationId: updateUser
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: role
+          type: string
+          required: true
+          description: "Admin or User"
+        - name: idUser
+          in: path
+          description: Sera usado el para traer los datos del usuario a modificar
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: Datos del usuario a modificar. <br> Si es "Admin", podra modificar los datos (nombre, apellido, email, contraseña, profile) del "idUser" indicado. <br> Si es "User", solo podra modificar sus propios datos (nombre, apellido, contraseña) usando su propio "idUser".
+          required: true
+          schema:
+            $ref: '#/components/schemas/Users'
+      responses:
+        '201':
+          description: Usuario modificado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Users'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Users'
+        '400':
+          description: Error al modificar usuario
+        '401':
+          description: No Autorizado para modificar los detalles del usuario
+    delete:
+      security:
+      - bearerAuth: []
+      tags:
+        - users
+      summary: Borra usuario
+      description: Trae datos del token. <br> Solo puede ser realizada por un __"Admin"__ para poder borrar un usuario.
+      operationId: deleteUser
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: role
+          type: string
+          required: true
+          description: "Admin or User"
+        - name: idUser
+          in: path
+          description: Sera usado el "idUser" para traer los datos del usuario a eliminar
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Usuario borrado
+        '400':
+          description: Error al eliminar usuario
+          schema:
+            $ref: '#/definitions/Error'
+        '401':
+          description: No Autorizado para borrar usuario
+  /regions:
+    post:
+      security:
+      - bearerAuth: []
+      tags:
+        - regions
+      summary: Crear una region.
+      description: Trae datos del token.
+      operationId: createUser
+      parameters:
+        - in: body
+          name: body
+          description: 'Datos necesarios para crear una region'
+          required: true
+          schema:
+            $ref: '#/components/schemas/Regions'
+      requestBody:
+        description: Created region object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Regions'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Regions'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Regions'
+      responses:
+        '201':
+          description: Region creada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Regions'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Regions'
+        '400':
+          description: Error al crear region
+    get:
+      security:
+      - bearerAuth: []
+      tags:
+        - regions
+      summary: Obtiene una lista de todas las regiones
+      description: 'Trae datos del token. '
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Listado de regiones
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Regions'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Regions'
+        '400':
+          description: Error al listar regiones
+          schema:
+            $ref: '#/definitions/Error'
+  /regions/{idRegion}:
+    get:
+      security:
+      - bearerAuth: []
+      tags:
+        - regions
+      summary: Trae datos de region.
+      description: Trae datos del token.
+      operationId: getRegionById
+      produces:
+        - application/json
+      parameters:
+
+        - name: idUser
+          in: path
+          description: 'Sera usado el "idRegion" para traer los datos de la region a consultar.'
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Datos de la region
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Regions'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Regions'
+        '400':
+          description: Error al encontrar region
+    put:
+      security:
+      - bearerAuth: []
+      tags:
+        - regions
+      summary: Modificacion de datos de region. Se debe ser "Admin".
+      description: Trae datos del token. <br> Si el usuario es __"Admin"__, podra hacer cambios en caulquier "idUser".<br>Si el usuario es "User", no podra hacer cambios.
+      operationId: updateRegion
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: role
+          type: string
+          required: true
+          description: "Admin or User"
+        - name: idUser
+          in: path
+          description: Sera usado el "idRegion" para traer los datos del usuario a modificar
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: Datos del usuario a modificar ("isAdmin", solo lo puede modificar por un "Admin")
+          required: true
+          schema:
+            $ref: '#/components/schemas/Regions'
+      responses:
+        '201':
+          description: Region modificada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Regions'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Regions'
+        '400':
+          description: Error al modificar region
+        '401':
+          description: No autorizado para modificar region
+    delete:
+      security:
+      - bearerAuth: []
+      tags:
+        - regions
+      summary: Borra region. Se debe ser "Admin".
+      description: Trae datos del token. <br> Solo puede ser realizada por un __"Admin"__ para poder borrar una region.
+      operationId: deleteRegion
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: role
+          type: string
+          required: true
+          description: "Admin or User"
+        - name: idUser
+          in: path
+          description: Sera usado el "idRegion" para traer los datos de la region a eliminar
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Region eliminada
+        '400':
+          description: Error al eliminar region
+        '401':
+          description: No autorizado para eliminar region
+  /countries:
+    post:
+      security:
+      - bearerAuth: []
+      tags:
+        - countries
+      summary: Crear un pais.
+      description: 'Trae datos del token.'
+      operationId: createCountry
+      parameters:
+        - in: body
+          name: body
+          description: 'Datos necesarios para crear un pais'
+          required: true
+          schema:
+            $ref: '#/components/schemas/Countries'
+      requestBody:
+        description: Created region object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Countries'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Countries'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Countries'
+      responses:
+        '201':
+          description: Pais creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Countries'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Countries'
+        '400':
+          description: Error  al crear pais
+    get:
+      security:
+      - bearerAuth: []
+      tags:
+        - countries
+      summary: Obtiene una lista de todos los paises
+      description: 'Trae datos del token.'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Listado de paises
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Countries'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Countries'
+        '400':
+          description: Error al listar paises
+  /countries/{idCountry}:
+    get:
+      security:
+      - bearerAuth: []
+      tags:
+        - countries
+      summary: Trae datos de pais.
+      description: 'Trae datos del token.'
+      operationId: getCountryById
+      produces:
+        - application/json
+      parameters:
+        - name: idCountry
+          in: path
+          description: 'Sera usado el "idCountry" para traer los datos del pais a consultar.'
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Datos del pais
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Countries'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Countries'
+        '400':
+          description: Error  al obtener pais
+    put:
+      security:
+      - bearerAuth: []
+      tags:
+        - countries
+      summary: Modificacion de datos del pais. Se debe ser "Admin".
+      description: Trae datos del token. <br> Si el usuario es __"Admin"__, podra hacer cambios en caulquier "idCountry". <br> Si el usuario es "User", no podra hacer cambios.
+      operationId: updateCountry
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: role
+          type: string
+          required: true
+          description: "Admin or User"
+        - name: idUser
+          in: path
+          description: Sera usado el "idCountry" para traer los datos del pais a consultar
+          required: true
+          type: string
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/components/schemas/Countries'
+      responses:
+        '201':
+          description: Pais modificado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Countries'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Countries'
+        '400':
+          description: Error al modificar pais
+        '401':
+          description: No autorizado para modificar pais
+    delete:
+      security:
+      - bearerAuth: []
+      tags:
+        - countries
+      summary: Borra pais. Se debe ser "Admin".
+      description: Trae datos del token. <br> Solo puede ser realizada por un __"Admin"__ para poder eliminar un pais.
+      operationId: deleteCountries
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: role
+          type: string
+          required: true
+          description: "Admin or User"
+        - name: idUser
+          in: path
+          description: Sera usado el para traer los datos del pais a eliminar
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Pais borrado
+        '400':
+          description: Error al eliminar pais
+        '401':
+          description: No Autorizado para borrar pais
+  /cities:
+    post:
+      security:
+      - bearerAuth: []
+      tags:
+        - cities
+      summary: Crear una ciudad.
+      description: 'Trae datos del token.'
+      operationId: createCity
+      parameters:
+        - in: body
+          name: body
+          description: 'Datos necesarios para crear una ciudad'
+          required: true
+          schema:
+            $ref: '#/components/schemas/Cities'
+      requestBody:
+        description: Created city object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Cities'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Cities'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Cities'
+      responses:
+        '201':
+          description: Ciudad creada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cities'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Cities'
+        '400':
+          description: Error al crear ciudad
+    get:
+      security:
+      - bearerAuth: []
+      tags:
+        - cities
+      summary: Obtiene una lista de todas las ciudades
+      description: 'Trae datos del token.'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Listado de ciudades
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cities'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Cities'
+        '400':
+          description: Error al listar ciudades
+  /cities/{idCity}:
+    get:
+      security:
+      - bearerAuth: []
+      tags:
+        - cities
+      summary: Trae datos de la ciudad.
+      description: Trae datos del token.
+      operationId: getCityById
+      produces:
+        - application/json
+      parameters:
+        - name: idCity
+          in: path
+          description: 'Sera usado el para traer los datos de la ciudad a consultar.'
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Datos de la ciudad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cities'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Cities'
+        '400':
+          description: Error al listar ciudad
+    put:
+      security:
+      - bearerAuth: []
+      tags:
+        - cities
+      summary: Modificacion de datos de la ciudad. Se debe ser "Admin".
+      description: Trae datos del token. <br> Si el usuario es __"Admin"__, podra hacer cambios en caulquier "idCity".
+      operationId: updateCity
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: role
+          type: string
+          required: true
+          description: "Admin or User"
+        - name: idUser
+          in: path
+          description: Sera usado el "idCity" para traer los datos de la ciudad a modificar
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: Datos de la ciudad a modificar.
+          required: true
+          schema:
+            $ref: '#/components/schemas/Cities'
+      responses:
+        '201':
+          description: Ciudad modificada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cities'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Cities'
+        '400':
+          description: Error al actualizar ciudad
+        '401':
+          description: No autorizado para actualizar ciudad
+    delete:
+      security:
+      - bearerAuth: []
+      tags:
+        - cities
+      summary: Borra ciudad. Se debe ser "Admin".
+      description: Trae datos del token. <br> Solo puede ser realizada por un __"Admin"__ para poder borrar una region.
+      operationId: deleteCity
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: role
+          type: string
+          required: true
+          description: "Admin or User"
+        - name: idUser
+          in: path
+          description: Sera usado el para traer los datos de la ciudad a eliminar
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Ciudad eliminada
+          schema:
+            $ref: '#/components/schemas/Cities'  
+        '400':
+          description: Error al eliminar ciudad
+        '401':
+          description: No Autorizado para eliminar ciudad
+  /Companies:
+    post:
+      security:
+      - bearerAuth: []
+      tags:
+        - companies
+      summary: Crear una compañia.
+      description: 'Trae datos del token.'
+      operationId: createCity
+      parameters:
+        - in: body
+          name: body
+          description: 'Datos necesarios para crear una compañia'
+          required: true
+          schema:
+            $ref: '#/components/schemas/Companies'
+      requestBody:
+        description: Created company object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Companies'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Companies'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Companies'
+      responses:
+        '201':
+          description: Compañia creada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Companies'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Companies'
+        '400':
+          description: Error al crear compañia
+    get:
+      security:
+      - bearerAuth: []
+      tags:
+        - companies
+      summary: Obtiene una lista de todas las compañias
+      description: 'Trae datos del token.'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Listado de compañias
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Companies'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Companies'
+        '400':
+          description: Error al listar compañias
+  /Companies/{idCompany}:
+    get:
+      security:
+      - bearerAuth: []
+      tags:
+        - companies
+      summary: Trae datos de la compañia.
+      description: Trae datos del token.
+      operationId: getCompanyById
+      produces:
+        - application/json
+      parameters:
+        - name: idCompany
+          in: path
+          description: 'Sera usado el "idCompany" para traer los datos de la compañia a consultar.'
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Datos de la compañia
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Companies'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Companies'
+        '400':
+          description: Error al encontrar compañia
+    put:
+      security:
+      - bearerAuth: []
+      tags:
+        - companies
+      summary: Modificación de datos de la compañia. Se debe ser "Admin".
+      description: Trae datos del token.
+      operationId: updateCity
+      produces:
+        - application/json
+      parameters:
+        - name: idUser
+          in: path
+          description: Sera usado el para traer los datos de la compañia a modificar
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: Datos de la compañia a modificar.
+          required: true
+          schema:
+            $ref: '#/components/schemas/Companies'
+      responses:
+        '201':
+          description: Compañia modificada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Companies'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Companies'
+        '400':
+          description: Error al actualizar compañia
+    delete:
+      security:
+      - bearerAuth: []
+      tags:
+        - companies
+      summary: Borra compañia. Se debe ser "Admin".
+      description: Trae datos del token. <br> Solo puede ser realizada por un __"Admin"__ para poder borrar una compañia.
+      operationId: deleteCompany
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: role
+          type: string
+          required: true
+          description: "Admin or User"
+        - name: idUser
+          in: path
+          description: Sera usado el "idCompany" para traer los datos de la compañia a eliminar
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Compañia borrada
+        '400':
+          description: Error al eliminar compañia
+        '401':
+          description: No Autorizado para eliminar compañia
+  /Contacts:
+    post:
+      security:
+      - bearerAuth: []
+      tags:
+        - contacts
+      summary: Crear un contacto.
+      description: Trae datos del token.
+      operationId: createContact
+      parameters:
+        - in: body
+          name: body
+          description: 'Datos necesarios para crear un contacto'
+          required: true
+          schema:
+            $ref: '#/components/schemas/Contacts'
+      requestBody:
+        description: Created company object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Contacts'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Contacts'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Contacts'
+      responses:
+        '201':
+          description: Contacto creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contacts'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Contacts'
+        '400':
+          description: Error al crear contacto
+    get:
+      security:
+      - bearerAuth: []
+      tags:
+        - contacts
+      summary: Obtiene una lista de todos los contactos
+      description: 'Trae datos del token. '
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Listado de contactos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contacts'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Contacts'
+        '400':
+          description: Error al listar contactos
+  /Contacts/{idContact}:
+    get:
+      security:
+      - bearerAuth: []
+      tags:
+        - contacts
+      summary: Trae datos del contacto.
+      description: Trae datos del token.
+      operationId: getContactById
+      produces:
+        - application/json
+      parameters:
+        - name: idContact
+          in: path
+          description: 'Sera usado el "idContact" para traer los datos del contacto a consultar.'
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Datos del contacto
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contacts'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Contacts'
+        '400':
+          description: Error al encontrar contacto
+    put:
+      security:
+      - bearerAuth: []
+      tags:
+        - contacts
+      summary: Modificación de datos del contacto. Se debe ser "Admin".
+      description: Trae datos del token. <br> Si el usuario es __"Admin"__, podra hacer cambios en caulquier "idContact". <br> Si el usuario es "User", no podra realizar cambios.
+      operationId: updateContact
+      produces:
+        - application/json
+      parameters:
+        - name: idContact
+          in: path
+          description: Sera usado el "idContact" para traer los datos del contacto a consultar
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: Datos del contacto a modificar.
+          required: true
+          schema:
+            $ref: '#/components/schemas/Contacts'
+      responses:
+        '201':
+          description: Contacto modificado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contacts'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Contacts'
+        '400':
+          description: Error al actualizar contacto
+    delete:
+      security:
+      - bearerAuth: []
+      tags:
+        - contacts
+      summary: Borra contacto. Se debe ser "Admin".
+      description: Trae datos del token. <br> Solo puede ser realizada por un __"Admin"__ para poder borrar una region.
+      operationId: deleteContact
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: role
+          type: string
+          required: true
+          description: "Admin or User"
+        - name: idUser
+          in: path
+          description: Sera usado el "idContact" para traer los datos del contacto a eliminar
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Contacto borrado
+        '400':
+          description: Error al eliminar contacto
+        '401':
+          description: No Autorizado para borrar contacto
+  /Channels:
+    post:
+      security:
+      - bearerAuth: []
+      tags:
+        - channels
+      summary: Crear un canal.
+      description: 'Trae datos del token.'
+      operationId: createChannel
+      parameters:
+        - in: body
+          name: body
+          description: 'Datos necesarios para crear un canal'
+          required: true
+          schema:
+            $ref: '#/components/schemas/Channels'
+      requestBody:
+        description: Created company object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Channels'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Channels'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Channels'
+      responses:
+        '201':
+          description: Canal creada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Channels'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Channels'
+        '400':
+          description: Error al crear canal
+    get:
+      security:
+      - bearerAuth: []
+      tags:
+        - channels
+      summary: Obtiene una lista de todos los canales
+      description: 'Trae datos del token.'
+      responses:
+        '200':
+          description: Listado de canales
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Channels'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Channels'
+        '400':
+          description: Error al listar canales
+  /Channels/{idChannel}:
+    get:
+      security:
+      - bearerAuth: []
+      tags:
+        - channels
+      summary: Trae datos del canal.
+      description: 'Trae datos del token.'
+      operationId: getChannelById
+      produces:
+        - application/json
+      parameters:
+        - name: idChannel
+          in: path
+          description: 'Sera usado el "idChannel" para traer los datos del canal a consultar.'
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Datos del canal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Channels'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Channels'
+        '400':
+          description: Error al encontrar canal
+    put:
+      security:
+      - bearerAuth: []
+      tags:
+        - channels
+      summary: Modificación de datos del canal. Se debe ser "Admin".
+      description: Trae datos del token. Si el usuario es __"Admin"__, podra hacer cambios en caulquier "idChannel".<br>Si el usuario es "User", no podra realizar cambios.
+      operationId: updateChannel
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: role
+          type: string
+          required: true
+          description: "Admin or User"
+        - name: idUser
+          in: path
+          description: Sera usado el para traer los datos del canal a consultar
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: Datos del canal a modificar.
+          required: true
+          schema:
+            $ref: '#/components/schemas/Channels'
+      responses:
+        '201':
+          description: Canal modificado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Channels'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Channels'
+        '400':
+          description: Error al modificar canal
+        '401':
+          description: No autorizado para actualizar canal
+    delete:
+      security:
+      - bearerAuth: []
+      tags:
+        - channels
+      summary: Borra canal. Se debe ser "Admin".
+      description: Trae datos del token. Solo puede ser realizada por un __"Admin"__ para poder borrar un canal.
+      operationId: deleteChannel
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: role
+          type: string
+          required: true
+          description: "Admin or User"
+        - name: idChannel
+          in: path
+          description: Sera usado el "idChannel" para traer los datos del canal a eliminar
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Canal borrado
+        '400':
+          description: Error al eliminar canal
+        '401':
+          description: No Autorizado para eliminar canal
+  /ContactChannels:
+    post:
+      security:
+      - bearerAuth: []
+      tags:
+        - contactChannels
+      summary: Crear un canal de conctacto.
+      description: 'Trae datos del token.'
+      operationId: createContactChannel
+      parameters:
+
+        - in: body
+          name: body
+          description: 'Datos necesarios para crear un canal de conctacto'
+          required: true
+          schema:
+            $ref: '#/components/schemas/ContactChannels'
+      requestBody:
+        description: Created company object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactChannels'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/ContactChannels'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ContactChannels'
+      responses:
+        '201':
+          description: Canal de conctacto creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactChannels'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ContactChannels'
+        '400':
+          description: Error al crear canal de contacto
+    get:
+      security:
+      - bearerAuth: []
+      tags:
+        - contactChannels
+      summary: Obtiene una lista de todos los canales de conctacto
+      description: 'Trae datos del token.'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Listado de canales de conctacto
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactChannels'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ContactChannels'
+        '400':
+          description: Error al listar canales de contacto
+  /ContactChannels/{idContactChannel}:
+    get:
+      security:
+      - bearerAuth: []
+      tags:
+        - contactChannels
+      summary: Trae datos del canal de conctacto.
+      description: 'Trae datos del token.'
+      operationId: getContactChannelById
+      produces:
+        - application/json
+      parameters:
+        - name: idContactChannel
+          in: path
+          description: 'Sera usado el "idContactChannel" para traer los datos del canal de conctacto a consultar.'
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Datos del canal de conctacto
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactChannels'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ContactChannels'
+        '400':
+          description: Error al obtener canal de contacto
+          schema:
+            $ref: '#/definitions/Error'
+    put:
+      security:
+      - bearerAuth: []
+      tags:
+        - contactChannels
+      summary: Modificación de datos del canal de conctacto
+      description: Trae datos del token.
+      operationId: updateContactChannel
+      produces:
+        - application/json
+      parameters:
+
+        - name: idContactChannel
+          in: path
+          description: Sera usado el "idContactChannel" para traer los datos del canal de conctacto a consultar
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: Datos del canal de conctacto a modificar.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ContactChannels'
+      responses:
+        '201':
+          description: Canal de conctacto modificado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactChannels'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ContactChannels'
+        '400':
+          description: Error al modificar canal de contacto
+    delete:
+      security:
+      - bearerAuth: []
+      tags:
+        - contactChannels
+      summary: Borra canal de conctacto. Se debe ser "Admin".
+      description: Trae datos del token. <br> Solo puede ser realizada por un __"Admin"__ para poder borrar una region.
+      operationId: deleteContactChannel
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: role
+          type: string
+          required: true
+          description: "Admin or User"
+        - name: idContactChannel
+          in: path
+          description: Sera usado el "idContactChannel" para traer los datos del canal de conctacto a eliminar
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Canal de conctacto borrada
+        '400':
+          description: Error al eliminar canal de contacto
+        '401':
+          description: No Autorizado para eliminar canal de conctacto
+
+components:
+  schemas:
+    Users:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: James
+        email:
+          type: string
+          example: john@email.com
+        password:
+          type: string
+          example: '12345'
+        profile:
+          type: string
+          example: User
+          enum:
+            - Admin
+            - User
+        createdAt:
+          type: string
+          example: 9:12 01/01/2022
+        updatedAt:
+          type: string
+          example: 9:12 01/01/2022
+      xml:
+        name: users
+    Regions:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        name:
+          type: string
+          example: Sur America
+        createdAt:
+          type: string
+          example: 9:12 01/01/2022
+        updatedAt:
+          type: string
+          example: 9:12 01/01/2022
+      xml:
+        name: regions
+    Countries:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        name:
+          type: string
+          example: Aegentina
+        regionId:
+          type: integer
+          example: 4
+        createdAt:
+          type: string
+          example: 9:12 01/01/2022
+        updatedAt:
+          type: string
+          example: 9:12 01/01/2022
+      xml:
+        name: countries
+    Cities:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        name:
+          type: string
+          example: Rosario
+        countryId:
+          type: integer
+          example: 4
+        createdAt:
+          type: string
+          example: 9:12 01/01/2022
+        updatedAt:
+          type: string
+          example: 9:12 01/01/2022
+      xml:
+        name: cities
+    Companies:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        name:
+          type: string
+          example: Exxon LLC
+        address:
+          type: string
+          example: street 123
+        email:
+          type: string
+          example: exxon@email.com
+        phone:
+          type: string
+          example: '12345'
+        cityId:
+          type: integer
+          example: 4
+        createdAt:
+          type: string
+          example: 9:12 01/01/2022
+        updatedAt:
+          type: string
+          example: 9:12 01/01/2022
+      xml:
+        name: companies
+    Contacts:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: James
+        jobTitle:
+          type: string
+          example: customer support 
+        email:
+          type: string
+          example: john@email.com
+        companyId:
+          type: integer
+          example: 3
+        cityId:
+          type: integer
+          example: 4
+        interest:
+          type: integer
+          example: 75
+        createdAt:
+          type: string
+          example: 9:12 01/01/2022
+        updatedAt:
+          type: string
+          example: 9:12 01/01/2022
+      xml:
+        name: contacts
+    Channels:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        name:
+          type: string
+          example: Instagram
+        createdAt:
+          type: string
+          example: 9:12 01/01/2022
+        updatedAt:
+          type: string
+          example: 9:12 01/01/2022
+      xml:
+        name: channels
+    ContactChannels:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        account:
+          type: string
+          description: alias in the plataform to contact the customer 
+          example: accountAlias
+        channelId:
+          type: integer
+          example: 3
+        contactId:
+          type: integer
+          example: 4
+        preference:
+          type: integer
+          example: 1
+          description: frecuency to contact the contact. 0 - no molestar, 1 - sin preferencia, 2 - favorito
+          enum:
+            - 0
+            - 1
+            - 2
+        createdAt:
+          type: string
+          example: 9:12 01/01/2022
+        updatedAt:
+          type: string
+          example: 9:12 01/01/2022
+      xml:
+        name: contactChannels
+
+
+
+
+
+
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+      xml:
+        name: '##default'
+  requestBodies:
+    User:
+      description: List of user object
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Users'
+  securitySchemes:
+    petstore_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https:pending
+          scopes:
+            write:users: modify users in your account
+            read:users: read your users
+    api_key:
+      type: Bearer token
+      name: token
+      in: header
