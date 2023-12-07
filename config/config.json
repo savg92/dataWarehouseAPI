@@ -1,10 +1,10 @@
 {
   "development": {
-    "username": "root",
-    "password": "null",
-    "database": "data_warehouse",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
+    "username": "penhaioa",
+    "password": "UQGkm2XbiVbW02cd_5sRr1DPaH7NODpA",
+    "database": "penhaioa",
+    "host": "silly.db.elephantsql.com",
+    "dialect": "postgres"
   },
   "test": {
     "username": "root",

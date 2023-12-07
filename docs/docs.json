@@ -1,0 +1,28 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API de Easy Media",
+    "description": "Documentación de la API de Easy Media",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Servidor de desarrollo "
+    }
+  ],
+  "tags": [
+    {
+      "name": "Login",
+        "description": "Endpoints para el login de usuarios"
+    },
+    {
+      "name": "Usuarios",
+        "description": "Endpoints para la gestión de usuarios"
+    },
+    {
+      "name": "Mensajes",
+        "description": "Endpoints para la gestión de mensajes"
+    }
+  ]
+}
