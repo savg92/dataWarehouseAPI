@@ -1,4 +1,4 @@
-const { Message } = require('../models');
+const { Message, User } = require('../models');
 
 const createMessage = async (req, res) => {
 	try {
@@ -23,12 +23,13 @@ const createMessage = async (req, res) => {
 const getAllMessages = async (req, res) => {
 	try {
 		const messages = await Message.findAll({
-			// include: [
-			// 	{
-			// 		model: User,
-			// 		// attributes: ['id', 'name'],
-			// 	},
-			// ],
+			include: [
+				{
+					model: User,
+					attributes: ['id', 'name'],
+				},
+			],
+			attributes: {exclude: ['UserId']},
 		});
 		res.status(200).json({
 			error: false,
@@ -52,6 +53,13 @@ const getMessagesById = async (req, res) => {
 			where: {
 				UserId: req.params.id,
 			},
+			include: [
+				{
+					model: User,
+					attributes: ['id', 'name'],
+				},
+			],
+			attributes: { exclude: ['UserId'] },
 		});
 		res.status(200).json({
 			error: false,
