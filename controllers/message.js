@@ -22,7 +22,9 @@ const createMessage = async (req, res) => {
 
 const getAllMessages = async (req, res) => {
 	try {
-		const messages = await Message.findAll();
+		const messages = await Message.findAll(
+			// { include: { model: User } }
+		);
 		res.status(200).json({
 			error: false,
 			code: 200,
