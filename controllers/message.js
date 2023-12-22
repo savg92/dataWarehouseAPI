@@ -8,40 +8,40 @@ const createMessage = async (req, res) => {
 			error: false,
 			code: 201,
 			message: 'Message created',
-			answer: message,
+			body: message,
 		});
 	} catch (err) {
 		res.status(400).json({
 			error: true,
 			code: 400,
 			message: 'Error creating message',
-			answer: err,
+			data: err,
 		});
 	}
 };
 
 const getAllMessages = async (req, res) => {
 	try {
-		const message = await Message.findAll();
+		const messages = await Message.findAll();
 		res.status(200).json({
 			error: false,
 			code: 200,
 			message: 'List of Messages',
-			answer: message,
+			data: messages,
 		});
 	} catch (err) {
 		res.status(400).json({
 			error: true,
 			code: 400,
 			message: 'Error getting Messages',
-			answer: err,
+			data: err,
 		});
 	}
 };
 
 const getMessagesById = async (req, res) => {
 	try {
-		const message = await Message.findAll({
+		const messages = await Message.findAll({
 			where: {
 				UserId: req.params.id,
 			},
@@ -50,14 +50,14 @@ const getMessagesById = async (req, res) => {
 			error: false,
 			code: 200,
 			message: 'Messages by user',
-			answer: message,
+			data: messages,
 		});
 	} catch (err) {
 		res.status(400).json({
 			error: true,
 			code: 400,
 			message: 'Error getting Messages by user',
-			answer: err,
+			data: err,
 		});
 	}
 };
@@ -75,14 +75,14 @@ const getMessagesByDate = async (req, res) => {
 			error: false,
 			code: 200,
 			message: 'Messages by date',
-			answer: message,
+			data: message,
 		});
 	} catch (err) {
 		res.status(400).json({
 			error: true,
 			code: 400,
 			message: 'Error getting Messages by date',
-			answer: err,
+			data: err,
 		});
 	}
 };
@@ -103,14 +103,14 @@ const getMessagesByWord = async (req, res) => {
 	// 		error: false,
 	// 		code: 200,
 	// 		message: 'Messages by word',
-	// 		answer: message,
+	// 		data: message,
 	// 	});
 	// } catch (err) {
 	// 	res.status(400).json({
 	// 		error: true,
 	// 		code: 400,
 	// 		message: 'Error getting Messages by word',
-	// 		answer: err,
+	// 		data: err,
 	// 	});
 	// }
 
@@ -204,14 +204,14 @@ const updateMessage = async (req, res) => {
 				error: false,
 				code: 201,
 				message: 'Message modified',
-				answer: message,
+				data: message,
 			});
 		} catch (err) {
 			res.status(400).json({
 				error: true,
 				code: 400,
 				message: 'Error modifying Message',
-				answer: err,
+				data: err,
 			});
 		}
 	} else if (req.auth.data.type === 'User') {
@@ -235,14 +235,14 @@ const deleteMessage = async (req, res) => {
 				error: false,
 				code: 200,
 				message: 'Message deleted',
-				answer: message,
+				data: message,
 			});
 		} catch (err) {
 			res.status(400).json({
 				error: true,
 				code: 400,
 				message: 'Error deleting Message',
-				answer: err,
+				data: err,
 			});
 		}
 	} else if (req.auth.data.type === 'User') {

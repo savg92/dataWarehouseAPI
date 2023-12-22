@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
   Message.init({
     title: DataTypes.STRING,
     body: DataTypes.TEXT,
-    UserId: DataTypes.INTEGER
+    userId: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Message',

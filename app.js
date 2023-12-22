@@ -5,6 +5,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const helmet = require('helmet');
+const cors = require('cors');
 
 const { expressjwt: jwt } = require('express-jwt');
 
@@ -16,6 +17,8 @@ const messagesRouter = require('./routes/message');
 const usersRouter = require('./routes/user');
 
 const app = express();
+
+app.use(cors());
 
 /*set up protected routes using express-jwt*/
 app.use(
