@@ -32,7 +32,7 @@ const loginUsers = async (req, res) => {
 	// create info to be stored in the token
 	const userToken = {
 		id: user.id,
-		name: user.firstName,
+		name: user.name,
 		type: user.profile,
 	};
 
@@ -45,7 +45,7 @@ const loginUsers = async (req, res) => {
 
 	res
 		.cookie('token', tkn, { httpOnly: true })
-		.json({ message: `Welcome ${user.firstName}!`, token: tkn });
+		.json({ message: `Welcome ${user.name}!`, token: tkn });
 };
 
 /* logOut: Función que permite a un usuario cerrar sesión en la aplicación. */

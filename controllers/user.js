@@ -22,14 +22,14 @@ const { User } = require('../models');
 // 					error: false,
 // 					code: 201,
 // 					message: 'Usuario creado',
-// 					answer: user,
+// 					data: user,
 // 				});
 // 			} catch (err) {
 // 				res.status(400).json({
 // 					error: true,
 // 					code: 400,
 // 					message: 'Error creating user',
-// 					answer: err,
+// 					data: err,
 // 				});
 // 			}
 // 		}
@@ -38,7 +38,7 @@ const { User } = require('../models');
 // 			error: true,
 // 			code: 400,
 // 			message: 'Error creating user',
-// 			answer: err,
+// 			data: err,
 // 		});
 // 	}
 // 	// } else if(req.auth.data.type === 'User') {
@@ -60,14 +60,14 @@ const getAllUsers = async (req, res) => {
 				error: false,
 				code: 200,
 				message: 'List of users',
-				answer: users,
+				data: users,
 			});
 		} catch (err) {
 			res.status(400).json({
 				error: true,
 				code: 400,
 				message: 'Error listing users',
-				answer: err,
+				data: err,
 			});
 		}
 	} else if (req.auth.data.type === 'User') {
@@ -82,14 +82,14 @@ const getAllUsers = async (req, res) => {
 				error: false,
 				code: 206,
 				message: 'User data',
-				answer: users,
+				data: users,
 			});
 		} catch (err) {
 			res.status(400).json({
 				error: true,
 				code: 400,
 				message: 'Error listing users',
-				answer: err,
+				data: err,
 			});
 		}
 	} else {
@@ -112,14 +112,14 @@ const getUserById = async (req, res) => {
 				error: false,
 				code: 200,
 				message: 'User data',
-				answer: user,
+				data: user,
 			});
 		} catch (err) {
 			res.status(400).json({
 				error: true,
 				code: 400,
 				message: 'Error listing user',
-				answer: err,
+				data: err,
 			});
 		}
 	} else if (req.params.id == req.auth.data.id) {
@@ -134,14 +134,14 @@ const getUserById = async (req, res) => {
 				error: false,
 				code: 206,
 				message: 'User data',
-				answer: user,
+				data: user,
 			});
 		} catch (err) {
 			res.status(400).json({
 				error: true,
 				code: 400,
 				message: 'Error listing user',
-				answer: err,
+				data: err,
 			});
 		}
 	} else {
@@ -165,14 +165,14 @@ const updateUser = async (req, res) => {
 				error: false,
 				code: 201,
 				message: 'User modified',
-				answer: user,
+				data: user,
 			});
 		} catch (err) {
 			res.status(400).json({
 				error: true,
 				code: 400,
 				message: 'Error modifying user',
-				answer: err,
+				data: err,
 			});
 		}
 	} else if (req.params.id == req.auth.data.id) {
@@ -186,14 +186,14 @@ const updateUser = async (req, res) => {
 				error: false,
 				code: 201,
 				message: 'User modified',
-				answer: user,
+				data: user,
 			});
 		} catch (err) {
 			res.status(400).json({
 				error: true,
 				code: 400,
 				message: 'Error modifying user',
-				answer: err,
+				data: err,
 			});
 		}
 	} else {
@@ -213,14 +213,14 @@ const deleteUser = async (req, res) => {
 				error: false,
 				code: 200,
 				message: 'User deleted',
-				answer: user,
+				data: user,
 			});
 		} catch (err) {
 			res.status(400).json({
 				error: true,
 				code: 400,
 				message: 'Error deleting user',
-				answer: err,
+				data: err,
 			});
 		}
 	} else {
