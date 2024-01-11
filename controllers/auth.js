@@ -43,12 +43,24 @@ const loginUsers = async (req, res) => {
 		{ algorithm: 'HS512' }
 	);
 
-	// return the token and a welcome message
-		return res
-			.cookie('token', tkn, { httpOnly: true })
-			.json({ message: 'Welcome', token: tkn });
-};
+	// const myCookie = cookie.serialize('token', tkn, {
+	// 	httpOnly: true,
+	// 	secure: true,
+	// 	maxAge: 60 * 30,
+	// 	path: '/',
+	// });
 
+	// return the token and a welcome message
+	return res
+		.cookie('token', tkn, { 
+			httpOnly: true,
+			secure: true,
+			maxAge: 60 * 30,
+			path: '/',
+		})
+		.json({ message: 'Welcome', token: tkn })
+		// .setHeader('Set-Cookie', myCookie)
+};
 
 // logOut: Function that allows a user to log out of the application.
 const logOut = async (req, res) => {
