@@ -43,9 +43,10 @@ const loginUsers = async (req, res) => {
 		{ algorithm: 'HS512' }
 	);
 
-	res
-		.cookie('token', tkn, { httpOnly: true })
-		.json({ message: `Welcome ${user.name}!`, token: tkn });
+	// return the token and a welcome message
+		return res
+			.cookie('token', tkn, { httpOnly: true })
+			.json({ message: 'Welcome', token: tkn });
 };
 
 
