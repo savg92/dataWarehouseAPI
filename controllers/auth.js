@@ -51,15 +51,14 @@ const loginUsers = async (req, res) => {
 	// });
 
 	// return the token and a welcome message
-	return res
-		.cookie('token', tkn, { 
-			httpOnly: true,
-			secure: true,
-			maxAge: 60 * 30,
-			path: '/',
-		})
-		.json({ message: 'Welcome', token: tkn })
-		// .setHeader('Set-Cookie', myCookie)
+	res.cookie('token', tkn, {
+		httpOnly: true,
+		secure: true,
+		maxAge: 60 * 30,
+		path: '/',
+	});
+	res.json({ message: 'Welcome', token: tkn });
+	// .setHeader('Set-Cookie', myCookie)
 };
 
 // logOut: Function that allows a user to log out of the application.
