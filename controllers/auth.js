@@ -51,12 +51,16 @@ const loginUsers = async (req, res) => {
 	// });
 
 	// return the token and a welcome message
-	res.cookie('token', tkn, {
-		httpOnly: true,
-		secure: true,
-		maxAge: 60 * 30,
-		path: '/',
-	});
+	res.cookie('token', 
+		`Bearer ${tkn}`
+		, {
+			httpOnly: true,
+			secure: true,
+			maxAge: 60 * 30,
+			path: '/',
+		}
+		);
+	res.setHeader('Set-Cookie', 'token=' + tkn + '; HttpOnly');
 	res.json({ message: 'Welcome', token: tkn });
 	// .setHeader('Set-Cookie', myCookie)
 };
