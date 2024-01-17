@@ -23,10 +23,13 @@ const loginUsers = async (req, res) => {
 
 	// if the email or password isn't correct, return an error
 	if (!user || !validatePassword) {
-		return res.json({
+		return res
+			.status(401)
+			.json({
 			error: true,
 			message: 'User or password incorrect',
-		});
+			}
+		);
 	}
 
 	// create info to be stored in the token
@@ -43,15 +46,10 @@ const loginUsers = async (req, res) => {
 		{ algorithm: 'HS512' }
 	);
 
-	// const myCookie = cookie.serialize('token', tkn, {
-	// 	httpOnly: true,
-	// 	secure: true,
-	// 	maxAge: 60 * 30,
-	// 	path: '/',
-	// });
-
 	// return the token and a welcome message
-	res.cookie('token', 
+	res
+		.status(200)
+		.cookie('token', 
 		`Bearer ${tkn}`
 		, {
 			httpOnly: true,
@@ -59,14 +57,15 @@ const loginUsers = async (req, res) => {
 			maxAge: 60 * 30,
 			path: '/',
 		}
-		);
-	res.setHeader('Set-Cookie', 'token=' + tkn + '; HttpOnly');
-	res.json({ message: 'Welcome', token: tkn });
-	// .setHeader('Set-Cookie', myCookie)
+		)
+		// res.setHeader('Set-Cookie', 'token=' + tkn + '; HttpOnly');
+		.json({ message: 'Welcome', token: tkn })
+		// .setHeader('Set-Cookie', myCookie)
 };
 
 // logOut: Function that allows a user to log out of the application.
 const logOut = async (req, res) => {
+	try{
 	const tkn = jwt.sign(
 		{ exp: Math.floor(Date.now() / 1000) + 1, data: null },
 		`expired key`,
@@ -76,6 +75,15 @@ const logOut = async (req, res) => {
 		.cookie('token', tkn, { httpOnly: true })
 		.clearCookie('token')
 		.json({ message: 'Sesión cerrada' });
+	}
+	catch(err){
+		res.status(400).json({
+			error: true,
+			code: 400,
+			message: 'Error closing session',
+			answer: err,
+		});
+	}
 };
 
 const createUser = async (req, res) => {

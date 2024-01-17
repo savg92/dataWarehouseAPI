@@ -22,7 +22,7 @@ const createMessage = async (req, res) => {
 
 const getAllMessages = async (req, res) => {
 	try {
-		req.setHeader('Set-Cookie', 'HttpOnly;Secure;SameSite=Strict');
+		// req.setHeader('Set-Cookie', 'HttpOnly;Secure;SameSite=Strict');
 		const messages = await Message.findAll({
 			include: [
 				{

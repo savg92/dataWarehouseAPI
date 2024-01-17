@@ -23,7 +23,7 @@ app.use(cors());
 /*set up protected routes using express-jwt*/
 app.use(
 	jwt({ secret: `${APP_KEY}`, algorithms: ['HS512'] }).unless({
-		path: ['/api/login', '/api/register'],
+		path: ['/api/login', '/api/register', '/api/a'],
 	})
 );
 
@@ -59,7 +59,5 @@ app.use(function (err, req, res, next) {
 	res.status(err.status || 500);
 	res.render('error');
 });
-
-
 
 module.exports = app;
