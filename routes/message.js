@@ -9,7 +9,6 @@ router.post('/', controller.createMessage);
 router.get('/', controller.getAllMessages);
 router.get('/:id', controller.getMessagesById);
 router.post('/date/', controller.getMessagesByDate);
-router.post('/word', controller.getMessagesByWord);
 router.put('/:id', controller.updateMessage);
 router.delete('/:id', controller.deleteMessage);
 

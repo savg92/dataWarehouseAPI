@@ -47,20 +47,7 @@ const loginUsers = async (req, res) => {
 	);
 
 	// return the token and a welcome message
-	res
-		.status(200)
-		.cookie('token', 
-		`Bearer ${tkn}`
-		, {
-			httpOnly: true,
-			secure: true,
-			maxAge: 60 * 30,
-			path: '/',
-		}
-		)
-		// res.setHeader('Set-Cookie', 'token=' + tkn + '; HttpOnly');
-		.json({ message: 'Welcome', token: tkn })
-		// .setHeader('Set-Cookie', myCookie)
+	res.status(200).json({ message: 'Welcome', token: tkn })
 };
 
 // logOut: Function that allows a user to log out of the application.
@@ -74,7 +61,7 @@ const logOut = async (req, res) => {
 	res
 		.cookie('token', tkn, { httpOnly: true })
 		.clearCookie('token')
-		.json({ message: 'Sesión cerrada' });
+		.json({ message: 'Session closed' });
 	}
 	catch(err){
 		res.status(400).json({
