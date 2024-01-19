@@ -23,13 +23,10 @@ const loginUsers = async (req, res) => {
 
 	// if the email or password isn't correct, return an error
 	if (!user || !validatePassword) {
-		return res
-			.status(401)
-			.json({
+		return res.status(401).json({
 			error: true,
 			message: 'User or password incorrect',
-			}
-		);
+		});
 	}
 
 	// create info to be stored in the token
@@ -47,23 +44,22 @@ const loginUsers = async (req, res) => {
 	);
 
 	// return the token and a welcome message
-	res.status(200).json({ message: 'Welcome', token: tkn })
+	res.status(200).json({ message: 'Welcome', token: tkn });
 };
 
 // logOut: Function that allows a user to log out of the application.
 const logOut = async (req, res) => {
-	try{
-	const tkn = jwt.sign(
-		{ exp: Math.floor(Date.now() / 1000) + 1, data: null },
-		`expired key`,
-		{ algorithm: 'HS512' }
-	);
-	res
-		.cookie('token', tkn, { httpOnly: true })
-		.clearCookie('token')
-		.json({ message: 'Session closed' });
-	}
-	catch(err){
+	try {
+		const tkn = jwt.sign(
+			{ exp: Math.floor(Date.now() / 1000) + 1, data: null },
+			`expired key`,
+			{ algorithm: 'HS512' }
+		);
+		res
+			.cookie('token', tkn, { httpOnly: true })
+			.clearCookie('token')
+			.json({ message: 'Session closed' });
+	} catch (err) {
 		res.status(400).json({
 			error: true,
 			code: 400,

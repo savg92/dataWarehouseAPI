@@ -23,7 +23,7 @@ app.use(cors());
 /*set up protected routes using express-jwt*/
 app.use(
 	jwt({ secret: `${APP_KEY}`, algorithms: ['HS512'] }).unless({
-		path: ['/api/login', '/api/register', '/api/a'],
+		path: ['/api/login', '/api/register'],
 	})
 );
 
